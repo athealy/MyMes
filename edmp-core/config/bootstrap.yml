@@ -1,0 +1,29 @@
+logging:
+  file:
+    max-size: 100MB
+  pattern:
+    console:
+  level:
+    root: info
+
+spring:
+  cloud:
+    nacos:
+      config:
+        namespace: 328f12a6-71f1-45df-8174-60f622539b85
+        group: CORE
+        file-extension: yaml
+        prefix: EDMP-CORE
+        server-addr: 10.66.10.237:8848
+        ext-config[0]:
+          data-id: MYSQL-BASE.yaml
+          group: COMM
+        ext-config[1]:
+          data-id: EDMP-REDIS.yaml
+          group: DS
+        ext-config[2]:
+          data-id: MYBATIES.yaml
+          group: COMM
+      discovery:
+        namespace: 3d06a597-51d0-4a25-91d0-21a041ac4598
+        server-addr: 10.66.10.237:8848

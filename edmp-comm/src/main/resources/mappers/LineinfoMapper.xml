@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jacksoft.dao.LineinfoDao">
+
+    <sql id="field_select">
+        id,department,linedesc,state
+    </sql>
+
+    <resultMap id="LineinfoMap" type="com.jacksoft.entity.Lineinfo">
+        <result property="id" column="id"></result>
+        <result property="linedesc" column="linedesc"></result>
+        <result property="state" column="state"></result>
+        <result property="department" column="department"></result>
+    </resultMap>
+
+    <select id="queryLineinfoByPage" parameterType="java.lang.String" resultMap="LineinfoMap" flushCache="true">
+        <bind name="start" value="(page-1)*row" />
+        <bind name="end"   value="row" />
+        SELECT <include refid="field_select"></include>
+        FROM lineinfo
+        <where>
+            <if test=" id!=null and id.trim().length>0">
+                AND `id`  =  #{id}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+            <if test=" state!=null and state.trim().length>0">
+                AND `state`  =  #{state}
+            </if>
+        </where>
+        ORDER BY id,department,state ASC
+        LIMIT #{start},#{end}
+    </select>
+
+    <select id="accountLineinfo" parameterType="java.lang.String" resultType="int" flushCache="true">
+        SELECT count(1) AS res
+        FROM lineinfo
+        <where>
+            <if test=" id!=null and id.trim().length>0">
+                AND `id`  =  #{id}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+            <if test=" state!=null and state.trim().length>0">
+                AND `state`  =  #{state}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insLineinfo" parameterType="com.jacksoft.entity.Lineinfo">
+        insert into lineinfo values
+        <foreach collection="list" item="l" separator=",">
+            (#{l.id},#{l.linedesc},#{l.state},#{l.department})
+        </foreach>
+    </insert>
+
+    <delete id="delLineinfo" parameterType="com.jacksoft.entity.Lineinfo">
+        delete from lineinfo where id in
+        <foreach collection="list" separator="," item="l" open="(" close=")">
+            #{l.id}
+        </foreach>
+        and department in
+        <foreach collection="list" separator="," item="l" open="(" close=")">
+            #{l.department}
+        </foreach>
+    </delete>
+
+    <update id="updLineinfo" parameterType="com.jacksoft.entity.Lineinfo">
+        update lineinfo
+        <set>
+            <if test="replacement.id!=null and ''!=replacement.id">
+                `id` = #{replacement.id},
+            </if>
+            <if test="replacement.department!=null and ''!=replacement.department">
+                `department` = #{replacement.department},
+            </if>
+            <if test="replacement.state!=null and ''!=replacement.state">
+                `state` = #{replacement.state},
+            </if>
+            <if test="replacement.linedesc!=null and ''!=replacement.linedesc">
+                `linedesc` = #{replacement.linedesc},
+            </if>
+        </set>
+        <where>
+            <if test="filter.id!=null and ''!=filter.id">
+                AND `id` =  #{filter.id}
+            </if>
+            <if test="filter.department!=null and ''!=filter.department">
+                AND `department` =  #{filter.department}
+            </if>
+            <if test="filter.state!=null and ''!=filter.state">
+                AND `state` =  #{filter.state}
+            </if>
+        </where>
+    </update>
+
+
+    <select id="quyAplOnly" parameterType="java.lang.String" resultMap="LineinfoMap" flushCache="true">
+        SELECT <include refid="field_select"></include>
+        FROM lineinfo
+        <where>
+            <if test=" id!=null and id.trim().length>0">
+                AND `id`  =  #{id}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+            <if test=" state!=null and state.trim().length>0">
+                AND `state`  =  #{state}
+            </if>
+        </where>
+        GROUP BY id
+        ORDER BY id,department,state ASC
+    </select>
+
+    <select id="quyActivity" parameterType="java.lang.String" resultMap="LineinfoMap" flushCache="true">
+        SELECT <include refid="field_select"></include>
+        FROM lineinfo
+        WHERE state in ('1','2','4')
+        GROUP BY id
+        ORDER BY id,department,state ASC
+    </select>
+
+</mapper>

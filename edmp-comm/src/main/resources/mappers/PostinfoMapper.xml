@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jacksoft.dao.PostinfoDao">
+
+    <sql id="field_select">
+        department,post_id,post_title,description,post_member
+    </sql>
+
+    <resultMap id="PostinfoMap" type="com.jacksoft.entity.hr.Postinfo">
+        <result property="department" column="department"></result>
+        <result property="post_id" column="post_id"></result>
+        <result property="post_title" column="post_title"></result>
+        <result property="description" column="description"></result>
+        <result property="post_member" column="post_member"></result>
+    </resultMap>
+
+    <select id="queryPostByPage" parameterType="java.lang.String" resultMap="PostinfoMap" flushCache="true">
+        <bind name="start" value="(page-1)*row" />
+        <bind name="end"   value="row" />
+        SELECT <include refid="field_select"></include>
+        FROM postinfo
+        <where>
+            <if test=" posttitle!=null and posttitle.trim().length>0">
+                AND `post_title`  like  '%${id}'
+            </if>
+            <if test=" postid!=null and postid.trim().length>0">
+                AND `post_id`  =  #{postid}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+        </where>
+        ORDER BY post_id ASC
+        LIMIT #{start},#{end}
+    </select>
+
+    <select id="countPost" parameterType="java.lang.String" resultType="int" flushCache="true">
+        SELECT count(1) AS res
+        FROM postinfo
+        <where>
+            <if test=" posttitle!=null and posttitle.trim().length>0">
+                AND `post_title`  like  '%${id}'
+            </if>
+            <if test=" postid!=null and postid.trim().length>0">
+                AND `post_id`  =  #{postid}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insPostinfo" parameterType="com.jacksoft.entity.hr.Postinfo">
+        insert into postinfo values
+        <foreach collection="list" item="l" separator=",">
+            (#{l.depart},#{l.post_id},#{l.post_title},#{l.description},#{l.post_memeber})
+        </foreach>
+    </insert>
+
+    <delete id="delPostinfo" parameterType="com.jacksoft.entity.hr.Postinfo">
+        delete from postinfo
+        <where>
+            <if test="list.size()>0">
+                and id in
+                <foreach collection="list" separator="," item="l" open="(" close=")">
+                    #{l.id}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+
+    <update id="updPostinfo" parameterType="com.jacksoft.entity.hr.Postinfo">
+        update postinfo
+        <set>
+            <if test="replacement.department!=null and ''!=replacement.department">
+                `department` = #{replacement.department},
+            </if>
+            <if test="replacement.post_id!=null and ''!=replacement.post_id">
+                `post_id` = #{replacement.post_id},
+            </if>
+            <if test="replacement.post_title!=null and ''!=replacement.post_title">
+                `post_title` = #{replacement.post_title},
+            </if>
+            <if test="replacement.post_member!=null and ''!=replacement.post_member">
+                `post_member` = #{replacement.post_member},
+            </if>
+            <if test="replacement.description!=null and ''!=replacement.description">
+                `description` = #{replacement.description},
+            </if>
+        </set>
+        <where>
+            <if test="filter.post_id!=null and ''!=filter.post_id">
+                AND `post_id` =  #{filter.post_id}
+            </if>
+            <if test="filter.department!=null and ''!=filter.department">
+                AND `department` =  #{filter.department}
+            </if>
+            <if test="filter.post_title!=null and ''!=filter.post_title">
+                AND `post_title` =  #{filter.post_title}
+            </if>
+        </where>
+    </update>
+    
+    <select id="quyDistincTitle" parameterType="java.lang.String" resultMap="PostinfoMap" flushCache="true">
+        SELECT DISTINCT post_title from postinfo
+        <where>
+            <if test="filter.department!=null and ''!=filter.department">
+                AND `department` =  #{filter.department}
+            </if>
+        </where>
+    </select>
+</mapper>

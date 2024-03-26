@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jacksoft.dao.IcdDao">
+
+    <sql id="field_select">
+        barcode,product,batch,serial,state,gtype
+    </sql>
+
+    <resultMap id="GoodsMap" type="com.jacksoft.entity.wms.Goods">
+        <result property="barcode" column="barcode"></result>
+        <result property="product" column="product"></result>
+        <result property="batch" column="batch"></result>
+        <result property="serial" column="serial"></result>
+        <result property="state" column="state"></result>
+        <result property="gtype" column="gtype"></result>
+    </resultMap>
+
+    <select id="queryGoodsByPage" parameterType="java.lang.String" resultMap="GoodsMap" flushCache="true">
+        <bind name="start" value="(page-1)*row" />
+        <bind name="end"   value="row" />
+        SELECT <include refid="field_select"></include>
+        FROM `goods`
+        <where>
+            <if test=" barcode!=null and barcode.trim().length>0">
+                AND `barcode`  =  #{barcode}
+            </if>
+            <if test=" product!=null and product.trim().length>0">
+                AND `product`  =  #{product}
+            </if>
+            <if test=" batch!=null and batch.trim().length>0">
+                AND `batch`  =  #{batch}
+            </if>
+            <if test=" serial!=null and serial.trim().length>0">
+                AND `serial`  =  #{serial}
+            </if>
+            <if test=" state!=null and state.trim().length>0">
+                AND `state`  =  #{state}
+            </if>
+            <if test=" gtype!=null and gtype.trim().length>0">
+                AND `gtype`  =  #{gtype}
+            </if>
+        </where>
+        ORDER BY product,batch DESC,serial,barcode,state
+        LIMIT #{start},#{end}
+    </select>
+
+    <select id="countGoods" parameterType="java.lang.String" resultType="int" flushCache="true">
+        SELECT count(1) AS res
+        FROM `goods`
+        <where>
+            <if test=" barcode!=null and barcode.trim().length>0">
+                AND `barcode`  =  #{barcode}
+            </if>
+            <if test=" product!=null and product.trim().length>0">
+                AND `product`  =  #{product}
+            </if>
+            <if test=" batch!=null and batch.trim().length>0">
+                AND `batch`  =  #{batch}
+            </if>
+            <if test=" serial!=null and serial.trim().length>0">
+                AND `serial`  =  #{serial}
+            </if>
+            <if test=" state!=null and state.trim().length>0">
+                AND `state`  =  #{state}
+            </if>
+            <if test=" gtype!=null and gtype.trim().length>0">
+                AND `gtype`  =  #{gtype}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insGoods" parameterType="com.jacksoft.entity.wms.Goods">
+        insert into `goods`(barcode,product,batch,serial,state,gtype) values
+        <foreach collection="list" item="l" separator=",">
+            (#{l.barcode},#{l.product},#{l.batch},#{l.serial},#{l.state},#{l.gtype})
+        </foreach>
+    </insert>
+
+    <delete id="delGoods" parameterType="com.jacksoft.entity.wms.Goods">
+        delete from `goods`
+        <where>
+            <if test=" barcode!=null and barcode.trim().length>0">
+                AND `barcode`  =  #{barcode}
+            </if>
+            <if test=" product!=null and product.trim().length>0">
+                AND `product`  =  #{product}
+            </if>
+            <if test=" batch!=null and batch.trim().length>0">
+                AND `batch`  =  #{batch}
+            </if>
+            <if test=" serial!=null and serial.trim().length>0">
+                AND `serial`  =  #{serial}
+            </if>
+            <if test=" state!=null and state.trim().length>0">
+                AND `state`  =  #{state}
+            </if>
+            <if test=" gtype!=null and gtype.trim().length>0">
+                AND `gtype`  =  #{gtype}
+            </if>
+        </where>
+    </delete>
+
+    <update id="updGoods" parameterType="com.jacksoft.entity.wms.Goods">
+        update `goods`
+        <set>
+            <if test="replacement.barcode!=null and ''!=replacement.barcode">
+                `barcode` = #{replacement.barcode},
+            </if>
+            <if test="replacement.product!=null and ''!=replacement.product">
+                `product` = #{replacement.product},
+            </if>
+            <if test="replacement.batch!=null and ''!=replacement.batch">
+                `batch` = #{replacement.batch},
+            </if>
+            <if test="replacement.serial!=null and ''!=replacement.serial">
+                `serial` = #{replacement.serial},
+            </if>
+            <if test="replacement.state!=null and ''!=replacement.state">
+                `state` = #{replacement.state},
+            </if>
+            <if test="replacement.gtype!=null and ''!=replacement.gtype">
+                `gtype` = #{replacement.gtype},
+            </if>
+        </set>
+        <where>
+            <if test=" barcode!=null and barcode.trim().length>0">
+                AND `barcode`  =  #{barcode}
+            </if>
+            <if test=" product!=null and product.trim().length>0">
+                AND `product`  =  #{product}
+            </if>
+            <if test=" batch!=null and batch.trim().length>0">
+                AND `batch`  =  #{batch}
+            </if>
+            <if test=" serial!=null and serial.trim().length>0">
+                AND `serial`  =  #{serial}
+            </if>
+            <if test=" state!=null and state.trim().length>0">
+                AND `state`  =  #{state}
+            </if>
+            <if test=" gtype!=null and gtype.trim().length>0">
+                AND `gtype`  =  #{gtype}
+            </if>
+        </where>
+    </update>
+
+</mapper>

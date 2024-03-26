@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jacksoft.dao.EmployeeDao">
+
+    <sql id="field_select">
+        id,username,duties,photo,department,gender
+    </sql>
+
+    <resultMap id="EmployeeMap" type="com.jacksoft.entity.hr.Employee">
+        <result property="id" column="id"></result>
+        <result property="username" column="username"></result>
+        <result property="duties" column="duties"></result>
+        <result property="photo" column="photo"></result>
+        <result property="department" column="department"></result>
+        <result property="gender" column="gender"></result>
+    </resultMap>
+
+    <select id="queryEmployeeByPage" parameterType="java.lang.String" resultMap="EmployeeMap" flushCache="true">
+        <bind name="start" value="(page-1)*row" />
+        <bind name="end"   value="row" />
+        SELECT <include refid="field_select"></include>
+        FROM employee
+        <where>
+            <if test=" id!=null and id.trim().length>0">
+                AND `id`  =  #{id}
+            </if>
+            <if test=" username!=null and username.trim().length>0">
+                AND `username`  =  #{username}
+            </if>
+            <if test=" duties!=null and duties.trim().length>0">
+                AND `duties`  =  #{duties}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+        </where>
+        ORDER BY duties,id,username ASC
+        LIMIT #{start},#{end}
+    </select>
+
+    <select id="countEmployee" parameterType="java.lang.String" resultType="int" flushCache="true">
+        SELECT count(1) AS res
+        FROM employee
+        <where>
+            <if test=" id!=null and id.trim().length>0">
+                AND `id`  =  #{id}
+            </if>
+            <if test=" username!=null and username.trim().length>0">
+                AND `username`  =  #{username}
+            </if>
+            <if test=" duties!=null and duties.trim().length>0">
+                AND `duties`  =  #{duties}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insEmployee" parameterType="com.jacksoft.entity.hr.Employee">
+        insert into employee values
+        <foreach collection="list" item="l" separator=",">
+            (#{l.id},#{l.username},#{l.duties},#{l.photo},#{l.department},#{l.gender})
+        </foreach>
+    </insert>
+
+    <delete id="delEmployee" parameterType="com.jacksoft.entity.hr.Employee">
+        delete from employee
+        <where>
+            <if test="list.size()>0">
+                and id in
+                <foreach collection="list" separator="," item="l" open="(" close=")">
+                    #{l.id}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+
+    <update id="updEmployee" parameterType="com.jacksoft.entity.hr.Employee">
+        update products
+        <set>
+            <if test="replacement.id!=null and ''!=replacement.id">
+                `id` = #{replacement.id},
+            </if>
+            <if test="replacement.username!=null and ''!=replacement.username">
+                `username` = #{replacement.username},
+            </if>
+            <if test="replacement.duties!=null and ''!=replacement.duties">
+                `duties` = #{replacement.duties},
+            </if>
+            <if test="replacement.photo!=null and ''!=replacement.photo">
+                `photo` = #{replacement.photo},
+            </if>
+            <if test="replacement.department!=null and ''!=replacement.department">
+                `department` = #{replacement.department},
+            </if>
+            <if test="replacement.gender!=null and ''!=replacement.gender">
+                `gender` = #{replacement.gender},
+            </if>
+        </set>
+        <where>
+            <if test="filter.id!=null and ''!=filter.id">
+                AND `id` =  #{filter.id}
+            </if>
+            <if test="filter.username!=null and ''!=filter.username">
+                AND `username` =  #{filter.username}
+            </if>
+            <if test="filter.duties!=null and ''!=filter.duties">
+                AND `duties` =  #{filter.duties}
+            </if>
+            <if test="filter.department!=null and ''!=filter.department">
+                AND `department` =  #{filter.department}
+            </if>
+            <if test="filter.gender!=null and ''!=filter.gender">
+                AND `gender` =  #{filter.gender}
+            </if>
+        </where>
+    </update>
+</mapper>

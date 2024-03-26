@@ -1,0 +1,26 @@
+logging:
+  file:
+    max-size: 100MB
+  pattern:
+    console:
+  level:
+    root: info
+
+spring:
+  cloud:
+    nacos:
+      config:
+        namespace: edmp-config
+        group: DS
+        file-extension: yaml
+        prefix: EDMP-DS
+        server-addr: 10.66.10.237:8848
+        ext-config[0]:
+          data-id: MYSQL-BASE.yaml
+          group: COMM
+        ext-config[1]:
+          data-id: EDMP-REDIS.yaml
+          group: DS
+      discovery:
+        namespace: edmp-discovery
+        server-addr: 10.66.10.237:8848

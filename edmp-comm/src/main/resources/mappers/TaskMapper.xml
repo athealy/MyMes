@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jacksoft.dao.TaskDao">
+
+    <sql id="field_select">
+        work_type,wtz,serial,department
+    </sql>
+
+    <resultMap id="TaskMap" type="com.jacksoft.entity.Task">
+        <result property="workType" column="work_type"></result>
+        <result property="wtz" column="wtz"></result>
+        <result property="serial" column="serial"></result>
+        <result property="department" column="department"></result>
+    </resultMap>
+
+    <select id="queryTaskByPage" parameterType="java.lang.String" resultMap="TaskMap" flushCache="true">
+        <bind name="start" value="(page-1)*row" />
+        <bind name="end"   value="row" />
+        SELECT <include refid="field_select"></include>
+        FROM tasks
+        <where>
+            <if test=" workType!=null and workType.trim().length>0">
+                AND `work_type`  =  #{workType}
+            </if>
+            <if test=" serial!=null and serial.trim().length>0">
+                AND `serial`  =  #{serial}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+        </where>
+        ORDER BY department,work_type,serial ASC
+        LIMIT #{start},#{end}
+    </select>
+
+    <select id="countTask" parameterType="java.lang.String" resultType="int" flushCache="true">
+        SELECT count(1) AS res
+        FROM tasks
+        <where>
+            <if test=" workType!=null and workType.trim().length>0">
+                AND `work_type`  =  #{workType}
+            </if>
+            <if test=" serial!=null and serial.trim().length>0">
+                AND `serial`  =  #{serial}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insTask" parameterType="com.jacksoft.entity.Task">
+        insert into tasks values
+        <foreach collection="list" item="l" separator=",">
+            (#{l.workType},#{l.wtz},#{l.serial},#{l.department}
+        </foreach>
+    </insert>
+
+    <delete id="delTask" parameterType="com.jacksoft.entity.Task">
+        delete from tasks where `department` in
+        <foreach collection="list" separator="," item="l" open="(" close=")">
+            #{l.department}
+        </foreach>
+        and `work_type` in
+        <foreach collection="list" separator="," item="l" open="(" close=")">
+            #{l.workType}
+        </foreach>
+        and `serial` in
+        <foreach collection="list" separator="," item="l" open="(" close=")">
+            #{l.serial}
+        </foreach>
+    </delete>
+
+    <update id="updTask" parameterType="com.jacksoft.entity.Task">
+        update tasks
+        <set>
+            <if test="replacement.workType!=null and ''!=replacement.workType">
+                `work_type` = #{replacement.workType},
+            </if>
+            <if test="replacement.wtz!=null and ''!=replacement.wtz">
+                `wtz` = #{replacement.wtz},
+            </if>
+            <if test="replacement.serial!=null and ''!=replacement.serial">
+                `serial` = #{replacement.serial},
+            </if>
+            <if test="replacement.department!=null and ''!=replacement.department">
+                `department` = #{replacement.department},
+            </if>
+        </set>
+        <where>
+            <if test="filter.id!=null and ''!=filter.id">
+                AND `work_type` =  #{filter.workType}
+            </if>
+            <if test="filter.serial!=null and ''!=filter.serial">
+                AND `serial` =  #{filter.serial}
+            </if>
+            <if test="filter.department!=null and ''!=filter.department">
+                AND `department` =  #{filter.department}
+            </if>
+        </where>
+    </update>
+
+    <select id="quyTaskOnly" parameterType="java.lang.String" resultMap="TaskMap" flushCache="true">
+        SELECT <include refid="field_select"></include>
+        FROM tasks
+        <where>
+            <if test=" workType!=null and workType.trim().length>0">
+                AND `work_type`  =  #{workType}
+            </if>
+            <if test=" serial!=null and serial.trim().length>0">
+                AND `serial`  =  #{serial}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+        </where>
+        ORDER BY department,work_type,serial ASC
+    </select>
+
+</mapper>

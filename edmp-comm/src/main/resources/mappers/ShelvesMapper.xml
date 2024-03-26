@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jacksoft.dao.ShelvesDao">
+
+    <sql id="field_select">
+        warehouse,id,title,upperlimit,saved,responsible
+    </sql>
+
+    <resultMap id="ShelvesMap" type="com.jacksoft.entity.wms.Shelves">
+        <result property="warehouse" column="warehouse"></result>
+        <result property="id" column="id"></result>
+        <result property="upperlimit" column="upperlimit"></result>
+        <result property="saved" column="saved"></result>
+        <result property="responsible" column="responsible"></result>
+        <result property="title" column="title"></result>
+    </resultMap>
+
+    <select id="queryShelvesByPage" parameterType="java.lang.String" resultMap="ShelvesMap" flushCache="true">
+        <bind name="start" value="(page-1)*row" />
+        <bind name="end"   value="row" />
+        SELECT <include refid="field_select"></include>
+        FROM `shelves`
+        <where>
+            <if test=" warehouse!=null and warehouse.trim().length>0">
+                AND `warehouse`  =  #{warehouse}
+            </if>
+            <if test=" id!=null and id.trim().length>0">
+                AND `id`  =  #{id}
+            </if>
+            <if test=" title!=null and title.trim().length>0">
+                AND `title`  like  '%${title}%'
+            </if>
+        </where>
+        ORDER BY warehouse,saved DESC,id ASC
+        LIMIT #{start},#{end}
+    </select>
+
+    <select id="countShelves" parameterType="java.lang.String" resultType="int" flushCache="true">
+        SELECT count(1) AS res
+        FROM `shelves`
+        <where>
+            <if test=" warehouse!=null and warehouse.trim().length>0">
+                AND `warehouse`  =  #{warehouse}
+            </if>
+            <if test=" id!=null and id.trim().length>0">
+                AND `id`  =  #{id}
+            </if>
+            <if test=" title!=null and title.trim().length>0">
+                AND `title`  like  '%${title}%'
+            </if>
+        </where>
+    </select>
+
+    <insert id="insShelves" parameterType="com.jacksoft.entity.wms.Shelves">
+        insert into `shelves`(warehouse,id,upperlimit,saved,responsible,title) values
+        <foreach collection="list" item="l" separator=",">
+            (#{l.warehouse},#{l.id},#{l.upperlimit},#{l.saved},#{l.responsible},#{l.title})
+        </foreach>
+    </insert>
+
+    <delete id="delShelves" parameterType="com.jacksoft.entity.wms.Shelves">
+        delete from `shelves`
+        <where>
+            <if test="list.size()>0">
+                and `warehouse` in
+                <foreach collection="list" separator="," item="l" open="(" close=")">
+                    #{l.warehouse}
+                </foreach>
+            </if>
+            <if test="list.size()>0">
+                and `id` in
+                <foreach collection="list" separator="," item="l" open="(" close=")">
+                    #{l.id}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+
+    <update id="updShelves" parameterType="com.jacksoft.entity.wms.Shelves">
+        update `shelves`
+        <set>
+            <if test="replacement.warehouse!=null and ''!=replacement.warehouse">
+                `warehouse` = #{replacement.warehouse},
+            </if>
+            <if test="replacement.id!=null and ''!=replacement.id">
+                `id` = #{replacement.id},
+            </if>
+            <if test="replacement.upperlimit!=null and ''!=replacement.upperlimit">
+                `upperlimit` = #{replacement.upperlimit},
+            </if>
+            <if test="replacement.saved!=null and ''!=replacement.saved">
+                `saved` = #{replacement.saved},
+            </if>
+            <if test="replacement.responsible!=null and ''!=replacement.responsible">
+                `responsible` = #{replacement.responsible},
+            </if>
+            <if test="replacement.title!=null and ''!=replacement.title">
+                `title` = #{replacement.title},
+            </if>
+        </set>
+        <where>
+            <if test="filter.warehouse!=null and ''!=filter.warehouse">
+                AND `warehouse` =  #{filter.warehouse}
+            </if>
+            <if test="filter.id!=null and ''!=filter.id">
+                AND `id` =  #{filter.id}
+            </if>
+        </where>
+    </update>
+
+</mapper>

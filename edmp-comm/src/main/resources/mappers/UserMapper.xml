@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jacksoft.dao.UserDao">
+
+    <sql id="field_select">
+        id,username,company,department,passwd,state,role
+    </sql>
+
+    <resultMap id="UserMap" type="com.jacksoft.entity.hr.User">
+        <result property="id" column="id"></result>
+        <result property="username" column="username"></result>
+        <result property="company" column="company"></result>
+        <result property="department" column="department"></result>
+        <result property="passwd" column="passwd"></result>
+        <result property="state" column="state"></result>
+        <result property="role" column="role"></result>
+    </resultMap>
+
+    <select id="queryUserByPage" parameterType="java.lang.String" resultMap="UserMap" flushCache="true">
+        <bind name="start" value="(page-1)*row" />
+        <bind name="end"   value="row" />
+        SELECT id,username,company,department,state,role
+        FROM user
+        <where>
+            <if test=" id!=null and id.trim().length>0">
+                AND `id`  =  #{id}
+            </if>
+            <if test=" username!=null and username.trim().length>0">
+                AND `username`  =  #{username}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+            <if test=" state!=null and state.trim().length>0">
+                AND `state`  =  #{state}
+            </if>
+            <if test=" company!=null and company.trim().length>0">
+                AND `company`  =  #{company}
+            </if>
+        </where>
+        ORDER BY id,username,company,department,state ASC
+        LIMIT #{start},#{end}
+    </select>
+
+    <select id="countUser" parameterType="java.lang.String" resultType="int" flushCache="true">
+        SELECT count(1) AS res
+        FROM user
+        <where>
+            <if test=" id!=null and id.trim().length>0">
+                AND `id`  =  #{id}
+            </if>
+            <if test=" username!=null and username.trim().length>0">
+                AND `username`  =  #{username}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+            <if test=" state!=null and state.trim().length>0">
+                AND `state`  =  #{state}
+            </if>
+            <if test=" company!=null and company.trim().length>0">
+                AND `company`  =  #{company}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insUser" parameterType="com.jacksoft.entity.hr.User">
+        insert into user values
+        <foreach collection="list" item="l" separator=",">
+            (#{l.id},#{l.username},#{l.company},#{l.department},sha1(#{l.passwd}),#{l.state},#{l.role})
+        </foreach>
+    </insert>
+
+    <delete id="delUser" parameterType="com.jacksoft.entity.hr.User">
+        delete from user
+        <where>
+            <if test="list.size()>0">
+             and id in
+                <foreach collection="list" separator="," item="l" open="(" close=")">
+                    #{l.id}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+
+    <update id="updUser" parameterType="com.jacksoft.entity.hr.User">
+        update user
+        <set>
+            <if test="replacement.id!=null and ''!=replacement.id">
+                `id` = #{replacement.id},
+            </if>
+            <if test="replacement.department!=null and ''!=replacement.department">
+                `department` = #{replacement.department},
+            </if>
+            <if test="replacement.state!=null and ''!=replacement.state">
+                `state` = #{replacement.state},
+            </if>
+            <if test="replacement.username!=null and ''!=replacement.username">
+                `username` = #{replacement.username},
+            </if>
+            <if test="replacement.company!=null and ''!=replacement.company">
+                `company` = #{replacement.company},
+            </if>
+            <if test="replacement.passwd!=null and ''!=replacement.passwd">
+                `passwd` = sha1(#{replacement.passwd}),
+            </if>
+            <if test="replacement.role!=null and ''!=replacement.role">
+                `role` = #{replacement.role},
+            </if>
+        </set>
+        <where>
+            <if test="filter.id!=null and ''!=filter.id">
+                AND `id` =  #{filter.id}
+            </if>
+            <if test="filter.username!=null and ''!=filter.username">
+                AND `username` =  #{filter.username}
+            </if>
+            <if test="filter.company!=null and ''!=filter.company">
+                AND `company` =  #{filter.company}
+            </if>
+            <if test="filter.department!=null and ''!=filter.department">
+                AND `department` =  #{filter.department}
+            </if>
+            <if test="filter.passwd!=null and ''!=filter.passwd">
+                AND `passwd` =  sha1(#{filter.passwd})
+            </if>
+        </where>
+    </update>
+
+    <select id="quyUserNopagetion" parameterType="java.lang.String" resultMap="UserMap" flushCache="true">
+        SELECT <include refid="field_select"></include>
+        FROM user
+        <where>
+            <if test=" id!=null and id.trim().length>0">
+                AND `id`  =  #{id}
+            </if>
+            <if test=" username!=null and username.trim().length>0">
+                AND `username`  =  #{username}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+            <if test=" state!=null and state.trim().length>0">
+                AND `state`  =  #{state}
+            </if>
+            <if test=" company!=null and company.trim().length>0">
+                AND `company`  =  #{company}
+            </if>
+            <if test=" role!=null and role.trim().length>0">
+                AND `role`  =  #{role}
+            </if>
+        </where>
+        ORDER BY id,username,company,department,role,state ASC
+    </select>
+
+    <select id="chkUserinfo" parameterType="java.lang.String" resultType="int" flushCache="true">
+        SELECT count(1)
+        FROM user
+        <where>
+            <if test=" id!=null and id.trim().length>0">
+                AND `id`  =  #{id}
+            </if>
+            <if test=" passwd!=null and passwd.trim().length>0">
+                AND `passwd`  =  sha1(#{passwd})
+            </if>
+        </where>
+    </select>
+
+    <select id="quyCompany" parameterType="java.lang.String" resultMap="UserMap" flushCache="true">
+        SELECT `company`
+        FROM user
+        GROUP BY `company`
+        ORDER BY `company` ASC
+    </select>
+
+</mapper>

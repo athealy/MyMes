@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jacksoft.dao.RouterDao">
+
+    <sql id="field_select">
+        serial,router
+    </sql>
+
+    <resultMap id="routerMap" type="com.jacksoft.entity.dc.RouterData">
+        <result property="serial" column="serial"></result>
+        <result property="router" column="router"></result>
+    </resultMap>
+
+    <select id="queryAll" resultMap="routerMap" flushCache="true">
+        SELECT <include refid="field_select"></include>
+        FROM mapper
+        ORDER BY
+           serial
+        ASC
+    </select>
+
+</mapper>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jacksoft.dao.CapacityInfoDao">
+
+    <sql id="field_select">
+        product,transfertime,capacity,department,line,description
+    </sql>
+
+    <resultMap id="CapacityInfoMap" type="com.jacksoft.entity.Capacity">
+        <result property="product" column="product"></result>
+        <result property="transfertime" column="transfertime"></result>
+        <result property="capacity" column="capacity"></result>
+        <result property="department" column="department"></result>
+        <result property="line" column="line"></result>
+        <result property="description" column="description"></result>
+    </resultMap>
+
+    <select id="queryCapacityByPage" parameterType="java.lang.String" resultMap="CapacityInfoMap" flushCache="true">
+        <bind name="start" value="(page-1)*row" />
+        <bind name="end"   value="row" />
+        SELECT <include refid="field_select"></include>
+        FROM `capacityinfo`
+        <where>
+            <if test=" product!=null and product.trim().length>0">
+                AND `product`  =  #{product}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+        </where>
+        ORDER BY department,product ASC
+        LIMIT #{start},#{end}
+    </select>
+
+    <select id="countCapacityInfo" parameterType="java.lang.String" resultType="int" flushCache="true">
+        SELECT count(1) AS res
+        FROM `capacityinfo`
+        <where>
+            <if test=" product!=null and product.trim().length>0">
+                AND `product`  =  #{product}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insCapacityInfo" parameterType="com.jacksoft.entity.Capacity">
+        insert into `capacityinfo` values
+        <foreach collection="list" item="l" separator=",">
+            (#{l.product},#{l.transfertime},#{l.capacity},#{l.department},#{l.line},#{l.description})
+        </foreach>
+    </insert>
+
+    <delete id="delCapacityInfo" parameterType="com.jacksoft.entity.Capacity">
+        delete from `capacityinfo`
+        <where>
+            <if test="list.size()>0">
+                and `product` in
+                <foreach collection="list" separator="," item="l" open="(" close=")">
+                    #{l.product}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+
+    <update id="updCapacityInfo" parameterType="com.jacksoft.entity.Capacity">
+        update `capacityinfo`
+        <set>
+            <if test="replacement.product!=null and ''!=replacement.product">
+                `product` = #{replacement.product},
+            </if>
+            <if test="replacement.transfertime!=null and ''!=replacement.transfertime">
+                `transfertime` = #{replacement.transfertime},
+            </if>
+            <if test="replacement.capacity!=null and ''!=replacement.capacity">
+                `capacity` = #{replacement.capacity},
+            </if>
+            <if test="replacement.department!=null and ''!=replacement.department">
+                `department` = #{replacement.department},
+            </if>
+            <if test="replacement.line!=null and ''!=replacement.line">
+                `line` = #{replacement.line},
+            </if>
+            <if test="replacement.description!=null and ''!=replacement.description">
+                `description` = #{replacement.description},
+            </if>
+        </set>
+        <where>
+            <if test="filter.product!=null and ''!=filter.product">
+                AND `product` =  #{filter.product}
+            </if>
+            <if test="filter.transfertime!=null and ''!=filter.transfertime">
+                AND `transfertime` =  #{filter.transfertime}
+            </if>
+            <if test="filter.capacity!=null and ''!=filter.capacity">
+                AND `capacity` =  #{filter.capacity}
+            </if>
+            <if test="filter.department!=null and ''!=filter.department">
+                AND `department` =  #{filter.department}
+            </if>
+            <if test="filter.line!=null and ''!=filter.line">
+                AND `line` =  #{filter.line}
+            </if>
+            <if test="filter.description!=null and ''!=filter.description">
+                AND `description` =  #{filter.description}
+            </if>
+        </where>
+    </update>
+
+    <select id="quyProdOnly" resultMap="CapacityInfoMap" flushCache="true">
+        SELECT distinct `product`
+        FROM `capacityinfo`
+        <where>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+        </where>
+        ORDER BY department,product desc
+    </select>
+</mapper>

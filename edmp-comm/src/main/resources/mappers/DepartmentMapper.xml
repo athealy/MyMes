@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jacksoft.dao.DepartmentDao">
+
+    <sql id="field_select">
+        id,name,description
+    </sql>
+
+    <resultMap id="DepartmentMap" type="com.jacksoft.entity.Department">
+        <result property="id" column="id"></result>
+        <result property="name" column="name"></result>
+        <result property="description" column="description"></result>
+    </resultMap>
+
+    <select id="queryDepartByPage" parameterType="java.lang.String" resultMap="DepartmentMap" flushCache="true">
+        <bind name="start" value="(page-1)*row" />
+        <bind name="end"   value="row" />
+        SELECT <include refid="field_select"></include>
+        FROM department
+        <where>
+            <if test=" id!=null and id.trim().length>0">
+                AND `id`  =  #{id}
+            </if>
+            <if test=" name!=null and name.trim().length>0">
+                AND `name`  =  #{name}
+            </if>
+        </where>
+        ORDER BY id,name ASC
+        LIMIT #{start},#{end}
+    </select>
+
+    <select id="countDepart" parameterType="java.lang.String" resultType="int" flushCache="true">
+        SELECT count(1) AS res
+        FROM department
+        <where>
+            <if test=" id!=null and id.trim().length>0">
+                AND `id`  =  #{id}
+            </if>
+            <if test=" name!=null and name.trim().length>0">
+                AND `name`  =  #{name}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insDepart" parameterType="com.jacksoft.entity.Department">
+        insert into department values
+        <foreach collection="list" item="l" separator=",">
+            (#{l.id},#{l.name},#{l.description}
+        </foreach>
+    </insert>
+
+    <delete id="delDepart" parameterType="com.jacksoft.entity.Department">
+        delete from department where `id` in
+        <foreach collection="list" separator="," item="l" open="(" close=")">
+            #{l.id}
+        </foreach>
+        and `name` in
+        <foreach collection="list" separator="," item="l" open="(" close=")">
+            #{l.name}
+        </foreach>
+    </delete>
+
+    <update id="updDepart" parameterType="com.jacksoft.entity.Department">
+        update department
+        <set>
+            <if test="replacement.id!=null and ''!=replacement.id">
+                `id` = #{replacement.id},
+            </if>
+            <if test="replacement.name!=null and ''!=replacement.name">
+                `name` = #{replacement.department},
+            </if>
+            <if test="replacement.description!=null and ''!=replacement.description">
+                `description` = #{replacement.description},
+            </if>
+        </set>
+        <where>
+            <if test="filter.id!=null and ''!=filter.id">
+                AND `id` =  #{filter.id}
+            </if>
+            <if test="filter.name!=null and ''!=filter.name">
+                AND `name` =  #{filter.name}
+            </if>
+        </where>
+    </update>
+
+
+    <select id="quyDepartOnly" parameterType="java.lang.String" resultMap="DepartmentMap" flushCache="true">
+        SELECT <include refid="field_select"></include>
+        FROM department
+        <where>
+            <if test=" id!=null and id.trim().length>0">
+                AND `id`  =  #{id}
+            </if>
+            <if test=" name!=null and name.trim().length>0">
+                AND `name`  =  #{name}
+            </if>
+        </where>
+        GROUP BY id
+        ORDER BY id,name ASC
+    </select>
+
+</mapper>

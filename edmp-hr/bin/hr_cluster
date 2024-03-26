@@ -1,0 +1,93 @@
+PARAMETER=""
+PORT=""
+TASK=""
+
+if [ -n "$1" ];then
+    PARAMETER=$1
+fi
+
+if [ -n "$2" ];then
+    PORT=(${2//,/ })
+fi
+
+if [ -n "$3" ];then
+   TASK=$3
+fi
+
+#关键字
+RUN_HOME=$EDMP_HR_HOME
+KEYWORDS=$RUN_HOME"/lib/edmp-hr"
+APP_MAIN="edmp-hr-*.jar"
+
+#运行参数
+JAVA_OPTS="-server -Xms256m -Xmx256m -Xss1024K "
+JAVA_OPTS="$JAVA_OPTS -XX:ParallelGCThreads=20 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:CMSInitiatingOccupancyFraction=80 -XX:MaxDirectMemorySize=256m -XX:+UnlockDiagnosticVMOptions -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=128m  -Dlog4j2.FORMATMsgNoLookups=true "
+
+#初始化系统PID
+gspPID=""
+
+getGspPID(){
+    javaps=`ps -ef|grep $KEYWORDS | grep -v grep | awk '{print $2}'`
+    if [ -n "$javaps" ]; then
+    	gspPID=$javaps
+    fi
+}
+
+gspStartup(){
+	CURPATH=`pwd`
+	cd $RUN_HOME
+	conf_path=$RUN_HOME"/config/bootstrap.yml"
+       if [ -n "$PORT" ]; then
+          i=0
+	   if [ -n "$TASK" ];then
+    		i=$(($TASK+$i))
+	   else
+                i=1
+	   fi
+
+	   for var in ${PORT[@]}
+	   do
+                listen_stat=`netstat -na | grep $var`
+                if [ ! -n "$listen_stat" ];then
+		  log_path=$RUN_HOME"/logs/hr"$i"/hrSys.log"
+                  task_code=`echo "edmp_hr_0"$i`
+  	   	  java $JAVA_OPTS -Dspring.cloud.bootstrap.location=$conf_path -DHOME=$RUN_HOME -Dserver.port=$var -Dlogging.file.name=$log_path -Dtask.code=$task_code -jar $RUN_HOME/lib/$APP_MAIN $PARAMETER 2>&1 &
+                  port_str=$port_str$var":"
+                  i=$(($i+1))
+		        else
+		          echo "端口:"$var",已经被占用!请使用其它端口,当前任务标识:"$i
+                fi
+       done
+           echo $port_str > $RUN_HOME/tmp/socket
+       else
+	   echo "需要提供集群端口列表才能启动集群模式"
+        fi
+	cd $CURPATH  
+}
+
+gspShutDown(){
+    getGspPID
+    if [ -n "$gspPID" ]; then
+       for var in ${gspPID[@]}
+       do       
+	kill $var
+       done
+       clear
+       echo "人力资源服务集群已停止"
+    else  
+       echo "人力资源服务集群没有启动"
+    fi  
+}  
+
+clear
+
+if [ "xstart" == "x$1" ]; then
+	gspStartup
+else
+	if [ "xstop" == "x$1" ]; then
+        	gspShutDown
+	else
+        	echo "启动指令：hr_cluster start/stop port1,port2,... AC_CODE起始标识(可选)"
+	fi
+fi
+

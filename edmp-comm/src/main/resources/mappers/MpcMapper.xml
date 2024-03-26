@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jacksoft.dao.MpcDao">
+
+    <sql id="field_select">
+        id,department,product,timezone,classes,line,plan,output,mfg,batch
+    </sql>
+
+    <resultMap id="MpcMap" type="com.jacksoft.entity.Manufacture">
+        <result property="id" column="id"></result>
+        <result property="product" column="product"></result>
+        <result property="department" column="department"></result>
+        <result property="timezone" column="timezone"></result>
+        <result property="classes" column="classes"></result>
+        <result property="line" column="line"></result>
+        <result property="output" column="output"></result>
+        <result property="mfg" column="mfg"></result>
+        <result property="batch" column="batch"></result>
+        <result property="plan" column="plan"></result>
+    </resultMap>
+
+    <resultMap id="ProdAccDataMap" type="com.jacksoft.entity.ds.ProductAccData">
+        <result property="outputTotalToday" column="outputTotalToday"></result>
+        <result property="planTotalToday" column="planTotalToday"></result>
+    </resultMap>
+
+    <select id="queryMpcByPage" parameterType="java.lang.String" resultMap="MpcMap" flushCache="true">
+        <bind name="start" value="(page-1)*row" />
+        <bind name="end"   value="row" />
+        SELECT <include refid="field_select"></include>
+        FROM manufacture
+        <where>
+            <if test=" id!=null and id.trim().length>0">
+                AND `id`  =  #{id}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+            <if test=" product!=null and product.trim().length>0">
+                AND `product`  =  #{product}
+            </if>
+            <if test=" classes!=null and classes.trim().length>0">
+                AND `classes`  =  #{classes}
+            </if>
+            <if test=" line!=null and line.trim().length>0">
+                AND `line`  =  #{line}
+            </if>
+            <if test=" mfg!=null and mfg.trim().length>0">
+                AND `mfg`  =  #{mfg}
+            </if>
+            <if test=" batch!=null and batch.trim().length>0">
+                AND `batch`  =  #{batch}
+            </if>
+            <if test=" timezone!=null and timezone.trim().length>0">
+                AND `timezone`  =  #{timezone}
+            </if>
+        </where>
+        ORDER BY mfg DESC,id,department,product,classes,line,batch ASC
+        LIMIT #{start},#{end}
+    </select>
+
+    <select id="countMpc" parameterType="java.lang.String" resultType="int" flushCache="true">
+        SELECT count(1) AS res
+        FROM manufacture
+        <where>
+            <if test=" id!=null and id.trim().length>0">
+                AND `id`  =  #{id}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+            <if test=" product!=null and product.trim().length>0">
+                AND `product`  =  #{product}
+            </if>
+            <if test=" classes!=null and classes.trim().length>0">
+                AND `classes`  =  #{classes}
+            </if>
+            <if test=" line!=null and line.trim().length>0">
+                AND `line`  =  #{line}
+            </if>
+            <if test=" mfg!=null and mfg.trim().length>0">
+                AND `mfg`  =  #{mfg}
+            </if>
+            <if test=" batch!=null and batch.trim().length>0">
+                AND `batch`  =  #{batch}
+            </if>
+            <if test=" timezone!=null and timezone.trim().length>0">
+                AND `timezone`  =  #{timezone}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insMpc" parameterType="com.jacksoft.entity.Manufacture">
+        insert into manufacture(`product`,`department`,`timezone`,`classes`,`line`,`output`,`mfg`,`batch`,`plan`) values
+        <foreach collection="list" item="l" separator=",">
+            (#{l.product},#{l.department},#{l.timezone},#{l.classes},#{l.line},#{l.output},#{l.mfg},#{l.batch},#{l.plan})
+        </foreach>
+    </insert>
+
+    <delete id="delMpc" parameterType="com.jacksoft.entity.Manufacture">
+        delete from manufacture
+        <where>
+            and `id` in
+            <foreach collection="list" separator="," item="l" open="(" close=")">
+                #{l.id}
+            </foreach>
+            and `product` in
+            <foreach collection="list" separator="," item="l" open="(" close=")">
+                #{l.product}
+            </foreach>
+            and `department` in
+            <foreach collection="list" separator="," item="l" open="(" close=")">
+                #{l.department}
+            </foreach>
+            and `timezone` in
+            <foreach collection="list" separator="," item="l" open="(" close=")">
+                #{l.timezone}
+            </foreach>
+            and `classes` in
+            <foreach collection="list" separator="," item="l" open="(" close=")">
+                #{l.classes}
+            </foreach>
+            and `line` in
+            <foreach collection="list" separator="," item="l" open="(" close=")">
+                #{l.line}
+            </foreach>
+            and `mfg` in
+            <foreach collection="list" separator="," item="l" open="(" close=")">
+                #{l.mfg}
+            </foreach>
+            and `batch` in
+            <foreach collection="list" separator="," item="l" open="(" close=")">
+                #{l.batch}
+            </foreach>
+        </where>
+    </delete>
+
+    <update id="updMpc" parameterType="com.jacksoft.entity.Manufacture">
+        update manufacture
+        <set>
+            <if test="replacement.id!=null and ''!=replacement.id">
+                `id` = #{replacement.id},
+            </if>
+            <if test="replacement.department!=null and ''!=replacement.department">
+                `department` = #{replacement.department},
+            </if>
+            <if test="replacement.product!=null and ''!=replacement.product">
+                `product` = #{replacement.product},
+            </if>
+            <if test="replacement.timezone!=null and ''!=replacement.timezone">
+                `timezone` = #{replacement.timezone},
+            </if>
+            <if test="replacement.classes!=null and ''!=replacement.classes">
+                `classes` = #{replacement.classes},
+            </if>
+            <if test="replacement.line!=null and ''!=replacement.line">
+                `line` = #{replacement.line},
+            </if>
+            <if test="replacement.plan!=null">
+                `plan` = #{replacement.plan},
+            </if>
+            <if test="replacement.output!=null">
+                `output` = #{replacement.output},
+            </if>
+            <if test="replacement.mfg!=null and ''!=replacement.mfg">
+                `mfg` = #{replacement.mfg},
+            </if>
+            <if test="replacement.batch!=null and ''!=replacement.batch">
+                `batch` = #{replacement.batch},
+            </if>
+        </set>
+        <where>
+            <if test=" filter.id!=null">
+                AND `id`  =  #{filter.id}
+            </if>
+            <if test=" filter.department!=null and filter.department.trim().length>0">
+                AND `department`  =  #{filter.department}
+            </if>
+            <if test=" filter.product!=null and filter.product.trim().length>0">
+                AND `product`  =  #{filter.product}
+            </if>
+            <if test=" filter.classes!=null and filter.classes.trim().length>0">
+                AND `classes`  =  #{filter.classes}
+            </if>
+            <if test=" filter.line!=null and filter.line.trim().length>0">
+                AND `line`  =  #{filter.line}
+            </if>
+            <if test=" filter.timezone!=null and filter.timezone.trim().length>0">
+                AND `timezone`  =  #{filter.timezone}
+            </if>
+            <if test=" filter.mfg!=null and filter.mfg.trim().length>0">
+                AND `mfg`  =  #{filter.mfg}
+            </if>
+            <if test=" filter.batch!=null and filter.batch.trim().length>0">
+                AND `batch`  =  #{filter.batch}
+            </if>
+        </where>
+    </update>
+
+    <select id="quyMakingProduct" parameterType="java.lang.String" resultMap="MpcMap" flushCache="true">
+        SELECT GROUP_CONCAT(product) as product,GROUP_CONCAT(batch) as batch
+        FROM ( SELECT * FROM manufacture
+        <where>
+            `batch` &lt;&gt; '-'
+            <if test=" line!=null and line.trim().length>0">
+                AND `line`  =  #{line}
+            </if>
+            <if test=" mfg!=null and mfg.trim().length>0">
+                AND `mfg`  =  #{mfg}
+            </if>
+            <if test=" classes!=null and classes.trim().length>0">
+                AND `classes`  =  #{classes}
+            </if>
+            <if test=" timezone!=null and timezone.trim().length>0">
+                AND `timezone`  =  #{timezone}
+            </if>
+        </where>
+        GROUP BY `product`,`batch` ) A
+    </select>
+
+    <select id="quyProdAcc" parameterType="java.lang.String" resultMap="ProdAccDataMap" flushCache="true">
+        SELECT SUM(`output`) AS outputTotalToday,SUM(`plan`) AS planTotalToday
+        FROM manufacture
+        <where>
+            <if test=" line!=null and line.trim().length>0">
+                AND `line`  =  #{line}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+            <if test=" product!=null and product.trim().length>0">
+                AND `product`  =  #{product}
+            </if>
+            <if test=" batch!=null and batch.trim().length>0">
+                AND `batch`  =  #{batch}
+            </if>
+            <if test=" mfg!=null and mfg.trim().length>0">
+                AND `mfg`  =  #{mfg}
+            </if>
+        </where>
+    </select>
+
+    <select id="quyCapaByLine" parameterType="java.lang.String" resultMap="MpcMap" flushCache="true">
+        SELECT <include refid="field_select"></include>
+        FROM manufacture
+        <where>
+            <if test=" line!=null and line.trim().length>0">
+                AND `line`  =  #{line}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+            <if test=" classes!=null and classes.trim().length>0">
+                AND `classes`  =  #{classes}
+            </if>
+            <if test=" mfg!=null and mfg.trim().length>0">
+                AND `mfg`  =  #{mfg}
+            </if>
+        </where>
+        ORDER BY `timezone` ASC
+    </select>
+
+    <select id="quyProduction" parameterType="java.lang.String" resultMap="MpcMap" flushCache="true">
+        SELECT product,batch,sum(output) as output,sum(plan) as plan
+        FROM manufacture
+        <where>
+            <if test=" line!=null and line.trim().length>0">
+                AND `line`  =  #{line}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+            <if test=" classes!=null and classes.trim().length>0">
+                AND `classes`  =  #{classes}
+            </if>
+            <if test=" mfg!=null and mfg.trim().length>0">
+                AND `mfg`  like  #{mfg}
+            </if>
+        </where>
+        GROUP BY product,batch
+        ORDER BY product,batch asc
+    </select>
+
+    <select id="quyProdByLineMfg" parameterType="java.lang.String" resultMap="MpcMap" flushCache="true">
+        SELECT product,batch,sum(output) as output,sum(plan) as plan
+        FROM manufacture
+        <where>
+            <if test=" line!=null and line.trim().length>0">
+                AND `line`  =  #{line}
+            </if>
+            <if test=" mfg!=null and mfg.trim().length>0">
+                AND `mfg`  &gt;=  #{mfg}
+            </if>
+        </where>
+        GROUP BY product,batch
+        ORDER BY product,batch asc
+    </select>
+
+    <select id="quyCapaOfDate" parameterType="java.lang.String" resultMap="MpcMap" flushCache="true">
+        SELECT mfg,sum(output) as output,sum(plan) as plan
+        FROM manufacture
+        <where>
+            <if test=" mfg!=null and mfg.trim().length>0">
+                AND `mfg`  like  #{mfg}
+            </if>
+        </where>
+        GROUP BY mfg
+        ORDER BY mfg asc
+    </select>
+
+    <select id="quyAllDayPlan" parameterType="java.lang.String" resultMap="MpcMap" flushCache="true">
+        SELECT <include refid="field_select"></include>
+        FROM manufacture
+        <where>
+            <if test=" mfg!=null and mfg.trim().length>0">
+                AND `mfg`  =  #{mfg}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+            <if test=" line!=null and line.trim().length>0">
+                AND `line`  =  #{line}
+            </if>
+        </where>
+        ORDER BY product,`timezone`+0 ASC;
+    </select>
+
+</mapper>

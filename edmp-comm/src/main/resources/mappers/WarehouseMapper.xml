@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jacksoft.dao.WarehouseDao">
+
+    <sql id="field_select">
+        id,title,stckingarea,shelves,stckingupper,shelvesupper,addr,planar,description
+    </sql>
+
+    <resultMap id="WarehouseMap" type="com.jacksoft.entity.wms.Warehouse">
+        <result property="id" column="id"></result>
+        <result property="title" column="title"></result>
+        <result property="stckingarea" column="stckingarea"></result>
+        <result property="shelves" column="shelves"></result>
+        <result property="stckingupper" column="stckingupper"></result>
+        <result property="shelvesupper" column="shelvesupper"></result>
+        <result property="addr" column="addr"></result>
+        <result property="planar" column="planar"></result>
+        <result property="description" column="description"></result>
+    </resultMap>
+
+    <select id="queryWarehouseByPage" parameterType="java.lang.String" resultMap="WarehouseMap" flushCache="true">
+        <bind name="start" value="(page-1)*row" />
+        <bind name="end"   value="row" />
+        SELECT <include refid="field_select"></include>
+        FROM `warehouse`
+        <where>
+            <if test=" id!=null and id.trim().length>0">
+                AND `id`  =  #{id}
+            </if>
+            <if test=" title!=null and title.trim().length>0">
+                AND `title`  like  '%${department}%'
+            </if>
+        </where>
+        ORDER BY id ASC
+        LIMIT #{start},#{end}
+    </select>
+
+    <select id="countWarehouse" parameterType="java.lang.String" resultType="int" flushCache="true">
+        SELECT count(1) AS res
+        FROM `warehouse`
+        <where>
+            <if test=" id!=null and id.trim().length>0">
+                AND `id`  =  #{id}
+            </if>
+            <if test=" title!=null and title.trim().length>0">
+                AND `title`  like  '%${department}%'
+            </if>
+        </where>
+    </select>
+
+    <insert id="insWarehouse" parameterType="com.jacksoft.entity.wms.Warehouse">
+        insert into `warehouse`(id,title,stckingarea,shelves,stckingupper,shelvesupper,addr,description) values
+        <foreach collection="list" item="l" separator=",">
+            (#{l.id},#{l.title},#{l.stckingarea},#{l.shelves},#{l.stckingupper},#{l.shelvesupper},#{l.addr},#{l.description})
+        </foreach>
+    </insert>
+
+    <delete id="delWarehouse" parameterType="com.jacksoft.entity.wms.Warehouse">
+        delete from `warehouse`
+        <where>
+            <if test="list.size()>0">
+                and `id` in
+                <foreach collection="list" separator="," item="l" open="(" close=")">
+                    #{l.id}
+                </foreach>
+            </if>
+            <if test="list.size()>0">
+                and `title` in
+                <foreach collection="list" separator="," item="l" open="(" close=")">
+                    #{l.title}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+
+    <update id="updWarehouse" parameterType="com.jacksoft.entity.wms.Warehouse">
+        update `warehouse`
+        <set>
+            <if test="replacement.id!=null and ''!=replacement.id">
+                `id` = #{replacement.id},
+            </if>
+            <if test="replacement.title!=null and ''!=replacement.title">
+                `title` = #{replacement.title},
+            </if>
+            <if test="replacement.stckingarea!=null and ''!=replacement.stckingarea">
+                `stckingarea` = #{replacement.stckingarea},
+            </if>
+            <if test="replacement.shelves!=null and ''!=replacement.shelves">
+                `shelves` = #{replacement.shelves},
+            </if>
+            <if test="replacement.stckingupper!=null and ''!=replacement.stckingupper">
+                `stckingupper` = #{replacement.stckingupper},
+            </if>
+            <if test="replacement.shelvesupper!=null and ''!=replacement.shelvesupper">
+                `shelvesupper` = #{replacement.shelvesupper},
+            </if>
+            <if test="replacement.addr!=null and ''!=replacement.addr">
+                `addr` = #{replacement.addr},
+            </if>
+            <if test="replacement.planar!=null and ''!=replacement.planar">
+                `planar` = #{replacement.planar},
+            </if>
+            <if test="replacement.description!=null and ''!=replacement.description">
+                `description` = #{replacement.description},
+            </if>
+        </set>
+        <where>
+            <if test="filter.id!=null and ''!=filter.id">
+                AND `id` =  #{filter.id}
+            </if>
+        </where>
+    </update>
+
+</mapper>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jacksoft.dao.ProductDao">
+
+    <sql id="field_select">
+        id,department,`order`,actuality,finish,capacity,state,today,batch,deliverydate
+    </sql>
+
+    <resultMap id="ProductMap" type="com.jacksoft.entity.Product">
+        <result property="id" column="id"></result>
+        <result property="order" column="order"></result>
+        <result property="actuality" column="actuality"></result>
+        <result property="finish" column="finish"></result>
+        <result property="capacity" column="capacity"></result>
+        <result property="state" column="state"></result>
+        <result property="department" column="department"></result>
+        <result property="today" column="today"></result>
+        <result property="batch" column="batch"></result>
+        <result property="deliverydate" column="deliverydate"></result>
+    </resultMap>
+
+    <select id="queryProductByPage" parameterType="java.lang.String" resultMap="ProductMap" flushCache="true">
+        <bind name="start" value="(page-1)*row" />
+        <bind name="end"   value="row" />
+        SELECT <include refid="field_select"></include>
+        FROM products
+        <where>
+            <if test=" id!=null and id.trim().length>0">
+                AND `id`  =  #{id}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+            <if test=" batch!=null and batch.trim().length>0">
+                AND `batch`  =  #{batch}
+            </if>
+            <if test=" state!=null and state.trim().length>0">
+                AND `state`  =  #{state}
+            </if>
+        </where>
+        ORDER BY id,department,state,today ASC
+        LIMIT #{start},#{end}
+    </select>
+
+    <select id="countProduct" parameterType="java.lang.String" resultType="int" flushCache="true">
+        SELECT count(1) AS res
+        FROM products
+        <where>
+            <if test=" id!=null and id.trim().length>0">
+                AND `id`  =  #{id}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+            <if test=" batch!=null and batch.trim().length>0">
+                AND `batch`  =  #{batch}
+            </if>
+            <if test=" state!=null and state.trim().length>0">
+                AND `state`  =  #{state}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insProduct" parameterType="com.jacksoft.entity.Product">
+        insert into products values
+        <foreach collection="list" item="l" separator=",">
+            (#{l.id},#{l.order},#{l.actuality},#{l.finish},#{l.capacity},#{l.state},#{l.department},#{l.today},#{l.batch},#{l.deliverydate})
+        </foreach>
+    </insert>
+
+    <delete id="delProduct" parameterType="com.jacksoft.entity.Product">
+        delete from products where id in
+        <foreach collection="list" separator="," item="l" open="(" close=")">
+            #{l.id}
+        </foreach>
+        and department in
+        <foreach collection="list" separator="," item="l" open="(" close=")">
+            #{l.department}
+        </foreach>
+        and batch in
+        <foreach collection="list" separator="," item="l" open="(" close=")">
+            #{l.batch}
+        </foreach>
+    </delete>
+
+    <update id="updProduct" parameterType="com.jacksoft.entity.Product">
+        update products
+        <set>
+            <if test="replacement.id!=null and ''!=replacement.id">
+                `id` = #{replacement.id},
+            </if>
+            <if test="replacement.department!=null and ''!=replacement.department">
+                `department` = #{replacement.department},
+            </if>
+            <if test="replacement.state!=null and ''!=replacement.state">
+                `state` = #{replacement.state},
+            </if>
+            <if test="replacement.order!=null and ''!=replacement.order">
+                `order` = #{replacement.order},
+            </if>
+            <if test="replacement.actuality!=null and ''!=replacement.actuality">
+                `actuality` = #{replacement.actuality},
+            </if>
+            <if test="replacement.finish!=null and ''!=replacement.finish">
+                `finish` = #{replacement.finish},
+            </if>
+            <if test="replacement.capacity!=null and ''!=replacement.capacity">
+                `capacity` = #{replacement.capacity},
+            </if>
+            <if test="replacement.today!=null and ''!=replacement.today">
+                `today` = #{replacement.today},
+            </if>
+            <if test="replacement.batch!=null and ''!=replacement.batch">
+                `batch` = #{replacement.batch},
+            </if>
+            <if test="replacement.deliverydate!=null and ''!=replacement.deliverydate">
+                `deliverydate` = #{replacement.deliverydate},
+            </if>
+        </set>
+        <where>
+            <if test="filter.id!=null and ''!=filter.id">
+                AND `id` =  #{filter.id}
+            </if>
+            <if test="filter.department!=null and ''!=filter.department">
+                AND `department` =  #{filter.department}
+            </if>
+            <if test="filter.batch!=null and filter.batch.trim().length>0">
+                AND `batch`  =  #{filter.batch}
+            </if>
+            <if test="filter.state!=null and ''!=filter.state">
+                AND `state` =  #{filter.state}
+            </if>
+        </where>
+    </update>
+
+    <select id="quyProductOnly" parameterType="java.lang.String" resultMap="ProductMap" flushCache="true">
+        SELECT <include refid="field_select"></include>
+        FROM products
+        <where>
+            <if test=" id!=null and id.trim().length>0">
+                AND `id`  =  #{id}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+            <if test=" batch!=null and batch.trim().length>0">
+                AND `batch`  =  #{batch}
+            </if>
+            <if test=" state!=null and state.trim().length>0">
+                AND `state`  =  #{state}
+            </if>
+        </where>
+        GROUP BY id,department,batch
+        ORDER BY id,department,batch,state ASC
+    </select>
+
+    <select id="quyProdSimple" parameterType="java.lang.String" resultMap="ProductMap" flushCache="true">
+        SELECT <include refid="field_select"></include>
+        FROM products
+        GROUP BY id
+        ORDER BY id ASC
+    </select>
+
+</mapper>

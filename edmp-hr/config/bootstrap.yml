@@ -1,0 +1,32 @@
+logging:
+  file:
+    max-size: 100MB
+  pattern:
+    console:
+  level:
+    root: info
+
+spring:
+  cloud:
+    nacos:
+      config:
+        namespace: mose-config
+        group: AC
+        file-extension: yaml
+        prefix: MOSE-AC-CLUSTER
+        server-addr: nacos-mose.ncore.nb:8848
+        ext-config[0]:
+          data-id: mysql.yaml
+          group: COMMON
+        ext-config[1]:
+          data-id: redis.yaml
+          group: COMMON
+        ext-config[2]:
+          data-id: mq.yaml
+          group: COMMON
+        ext-config[3]:
+          data-id: MOSE_CONF.yaml
+          group: COMMON
+      discovery:
+        namespace: mose-config
+        server-addr: nacos-mose.ncore.nb:8848

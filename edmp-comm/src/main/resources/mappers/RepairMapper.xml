@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jacksoft.dao.RepairDao">
+
+    <sql id="field_select">
+        serial,product,department,barcode,sdate,tester,parameters,result,stime,handle,reviewer,batch
+    </sql>
+
+    <resultMap id="RepairMap" type="com.jacksoft.entity.ds.Repair">
+        <result property="serial" column="serial"></result>
+        <result property="product" column="product"></result>
+        <result property="batch" column="batch"></result>
+        <result property="department" column="department"></result>
+        <result property="barcode" column="barcode"></result>
+        <result property="sdate" column="sdate"></result>
+        <result property="maintainer" column="maintainer"></result>
+        <result property="defect" column="defect"></result>
+        <result property="liable" column="liable"></result>
+        <result property="handle" column="handle"></result>
+    </resultMap>
+
+    <select id="queryRepairByPage" parameterType="java.lang.String" resultMap="RepairMap" flushCache="true">
+        <bind name="start" value="(page-1)*row" />
+        <bind name="end"   value="row" />
+        SELECT <include refid="field_select"></include>
+        FROM `repair`
+        <where>
+            <if test=" product!=null and product.trim().length>0">
+                AND `product`  =  #{product}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+            <if test=" sdate!=null and sdate.trim().length>0">
+                AND `sdate`  =  #{sdate}
+            </if>
+            <if test=" barcode!=null and barcode.trim().length>0">
+                AND `barcode`  =  #{barcode}
+            </if>
+            <if test=" batch!=null and batch.trim().length>0">
+                AND `batch`  =  #{batch}
+            </if>
+        </where>
+        ORDER BY department,product,serial ASC
+        LIMIT #{start},#{end}
+    </select>
+
+    <select id="countRepair" parameterType="java.lang.String" resultType="int" flushCache="true">
+        SELECT count(1) AS res
+        FROM `repair`
+        <where>
+            <if test=" product!=null and product.trim().length>0">
+                AND `product`  =  #{product}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+            <if test=" sdate!=null and sdate.trim().length>0">
+                AND `sdate`  =  #{sdate}
+            </if>
+            <if test=" barcode!=null and barcode.trim().length>0">
+                AND `barcode`  =  #{barcode}
+            </if>
+            <if test=" batch!=null and batch.trim().length>0">
+                AND `batch`  =  #{batch}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insRepair" parameterType="com.jacksoft.entity.ds.Repair">
+        insert into `repair`(sdate,product,barcode,department,maintainer,defect,liable,handle,batch) values
+        <foreach collection="list" item="l" separator=",">
+            (#{l.sdate},#{l.product},#{l.barcode},#{l.department},#{l.maintainer},#{l.defect},#{l.liable},#{l.handle},#{l.batch})
+        </foreach>
+    </insert>
+
+    <delete id="delRepair" parameterType="com.jacksoft.entity.ds.Repair">
+        delete from `repair`
+        <where>
+            <if test="list.size()>0">
+                and `product` in
+                <foreach collection="list" separator="," item="l" open="(" close=")">
+                    #{l.product}
+                </foreach>
+            </if>
+            <if test="list.size()>0">
+                and `batch` in
+                <foreach collection="list" separator="," item="l" open="(" close=")">
+                    #{l.batch}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+
+    <update id="updRepair" parameterType="com.jacksoft.entity.ds.Repair">
+        update `repair`
+        <set>
+            <if test="replacement.product!=null and ''!=replacement.product">
+                `product` = #{replacement.product},
+            </if>
+            <if test="replacement.barcode!=null and ''!=replacement.barcode">
+                `barcode` = #{replacement.barcode},
+            </if>
+            <if test="replacement.sdate!=null and ''!=replacement.sdate">
+                `sdate` = #{replacement.sdate},
+            </if>
+            <if test="replacement.department!=null and ''!=replacement.department">
+                `department` = #{replacement.department},
+            </if>
+            <if test="replacement.maintainer!=null and ''!=replacement.maintainer">
+                `maintainer` = #{replacement.maintainer},
+            </if>
+            <if test="replacement.defect!=null and ''!=replacement.defect">
+                `defect` = #{replacement.defect},
+            </if>
+            <if test="replacement.liable!=null and ''!=replacement.liable">
+                `liable` = #{replacement.liable},
+            </if>
+            <if test="replacement.handle!=null and ''!=replacement.handle">
+                `handle` = #{replacement.handle},
+            </if>
+            <if test="replacement.batch!=null and ''!=replacement.batch">
+                `batch` = #{replacement.batch},
+            </if>
+        </set>
+        <where>
+            <if test="filter.serial!=null and ''!=filter.serial">
+                AND `serial` =  #{filter.serial}
+            </if>
+        </where>
+    </update>
+
+</mapper>

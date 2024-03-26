@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jacksoft.dao.MaterialDao">
+
+    <sql id="field_select">
+        product,name,equmaterial,materialnum
+    </sql>
+
+    <resultMap id="MaterialMap" type="com.jacksoft.entity.Material">
+        <result property="product" column="product"></result>
+        <result property="name" column="name"></result>
+        <result property="equmaterial" column="equmaterial"></result>
+        <result property="materialnum" column="materialnum"></result>
+    </resultMap>
+
+    <resultMap id="MaterialAccMap" type="com.jacksoft.entity.MaterialAcc">
+        <result property="product" column="product"></result>
+        <result property="chip" column="chip"></result>
+        <result property="ic" column="ic"></result>
+        <result property="element" column="element"></result>
+        <result property="equalNum" column="equalNum"></result>
+    </resultMap>
+
+    <select id="queryMaterialByPage" parameterType="java.lang.String" resultMap="MaterialAccMap" flushCache="true">
+        <bind name="start" value="(page-1)*row" />
+        <bind name="end"   value="row" />
+        SELECT A.product,
+            SUM(A.equmaterial) AS equalNum,
+            SUM(IF(`name`='CHIP',materialnum,0)) AS chip,
+            SUM(IF(`name`='IC',materialnum,0)) AS ic,
+            SUM(IF(`name`='ELEMENT',materialnum,0)) AS 'element'
+        FROM ( SELECT *
+               FROM `material`
+               <where>
+                   <if test=" product!=null and product.trim().length>0">
+                       AND `product`  =  #{product}
+                   </if>
+               </where>
+               ORDER BY product ASC) A
+        GROUP BY A.product
+        LIMIT #{start},#{end}
+    </select>
+
+    <select id="countMaterial" parameterType="java.lang.String" resultType="int" flushCache="true">
+        SELECT count(1) AS res
+        FROM (
+            SELECT A.product,
+            SUM(A.equmaterial) AS equalNum,
+            SUM(IF(`name`='CHIP',materialnum,0)) AS chip,
+            SUM(IF(`name`='IC',materialnum,0)) AS ic,
+            SUM(IF(`name`='ELEMENT',materialnum,0)) AS `element`
+            FROM ( SELECT *
+                FROM `material`
+                <where>
+                    <if test=" product!=null and product.trim().length>0">
+                        AND `product`  =  #{product}
+                    </if>
+                </where>
+                ORDER BY product ASC) A
+            GROUP BY A.product
+        ) B
+    </select>
+
+    <insert id="insMaterial" parameterType="com.jacksoft.entity.Material">
+        insert into `material` values
+        <foreach collection="list" item="l" separator=",">
+            (#{l.product},#{l.name},#{l.equmaterial},#{l.materialnum})
+        </foreach>
+    </insert>
+
+    <delete id="delMaterial" parameterType="com.jacksoft.entity.Material">
+        delete from `material`
+        <where>
+            <if test="list.size()>0">
+                and `product` in
+                <foreach collection="list" separator="," item="l" open="(" close=")">
+                    #{l.product}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+
+    <update id="updMaterial" parameterType="com.jacksoft.entity.Material">
+        update `material`
+        <set>
+            <if test="replacement.product!=null and ''!=replacement.product">
+                `product` = #{replacement.product},
+            </if>
+            <if test="replacement.name!=null and ''!=replacement.name">
+                `name` = #{replacement.name},
+            </if>
+            <if test="replacement.equmaterial!=null and ''!=replacement.equmaterial">
+                `equmaterial` = #{replacement.equmaterial},
+            </if>
+            <if test="replacement.materialnum!=null and ''!=replacement.materialnum">
+                `materialnum` = #{replacement.materialnum},
+            </if>
+        </set>
+        <where>
+            <if test="filter.product!=null and ''!=filter.product">
+                AND `product` =  #{filter.product}
+            </if>
+            <if test="filter.name!=null and ''!=filter.name">
+                AND `name` =  #{filter.name}
+            </if>
+            <if test="filter.equmaterial!=null and ''!=filter.equmaterial">
+                AND `equmaterial` =  #{filter.equmaterial}
+            </if>
+            <if test="filter.materialnum!=null and ''!=filter.materialnum">
+                AND `materialnum` =  #{filter.materialnum}
+            </if>
+        </where>
+    </update>
+
+    <select id="quyEqualNum" parameterType="com.jacksoft.entity.Material" resultMap="MaterialMap" flushCache="true">
+        SELECT product,sum(`equmaterial`) as `equmaterial`
+        FROM `material`
+        <where>
+            <if test="list.size()>0">
+                and `product` in
+                <foreach collection="list" separator="," item="l" open="(" close=")">
+                    #{l.product}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY product
+    </select>
+
+</mapper>

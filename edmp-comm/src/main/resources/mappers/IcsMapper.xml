@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jacksoft.dao.IcsDao">
+
+    <sql id="field_select">
+        sdate,warehouse,`type`,`area`,gtype,goods,bdirection,amount,product,abstract
+    </sql>
+
+    <resultMap id="IcsMap" type="com.jacksoft.entity.wms.Ics">
+        <result property="sdate" column="sdate"></result>
+        <result property="warehouse" column="warehouse"></result>
+        <result property="type" column="type"></result>
+        <result property="area" column="area"></result>
+        <result property="gtype" column="gtype"></result>
+        <result property="goods" column="goods"></result>
+        <result property="bdirection" column="bdirection"></result>
+        <result property="amount" column="amount"></result>
+        <result property="product" column="product"></result>
+        <result property="abstract" column="abstract"></result>
+    </resultMap>
+
+    <select id="queryIcsByPage" parameterType="java.lang.String" resultMap="IcsMap" flushCache="true">
+        <bind name="start" value="(page-1)*row" />
+        <bind name="end"   value="row" />
+        SELECT <include refid="field_select"></include>
+        FROM `icd`
+        <where>
+            <if test=" sdate!=null and sdate.trim().length>0">
+                AND `sdate`  =  #{sdate}
+            </if>
+            <if test=" warehouse!=null and warehouse.trim().length>0">
+                AND `warehouse`  =  #{warehouse}
+            </if>
+            <if test=" type!=null and type.trim().length>0">
+                AND `type`  =  #{type}
+            </if>
+            <if test=" area!=null and area.trim().length>0">
+                AND `area`  =  #{area}
+            </if>
+            <if test=" gtype!=null and gtype.trim().length>0">
+                AND `gtype`  =  #{gtype}
+            </if>
+            <if test=" goods!=null and goods.trim().length>0">
+                AND `goods`  =  #{goods}
+            </if>
+            <if test=" bdirection!=null and bdirection.trim().length>0">
+                AND `bdirection`  =  #{bdirection}
+            </if>
+            <if test=" bdirection!=null and bdirection.trim().length>0">
+                AND `bdirection`  =  #{bdirection}
+            </if>
+        </where>
+        ORDER BY sdate,warehouse,product,type,area,gtype,goods ASC
+        LIMIT #{start},#{end}
+    </select>
+
+    <select id="countIcs" parameterType="java.lang.String" resultType="int" flushCache="true">
+        SELECT count(1) AS res
+        FROM `icd`
+        <where>
+            <if test=" sdate!=null and sdate.trim().length>0">
+                AND `sdate`  =  #{sdate}
+            </if>
+            <if test=" warehouse!=null and warehouse.trim().length>0">
+                AND `warehouse`  =  #{warehouse}
+            </if>
+            <if test=" type!=null and type.trim().length>0">
+                AND `type`  =  #{type}
+            </if>
+            <if test=" area!=null and area.trim().length>0">
+                AND `area`  =  #{area}
+            </if>
+            <if test=" gtype!=null and gtype.trim().length>0">
+                AND `gtype`  =  #{gtype}
+            </if>
+            <if test=" goods!=null and goods.trim().length>0">
+                AND `goods`  =  #{goods}
+            </if>
+            <if test=" bdirection!=null and bdirection.trim().length>0">
+                AND `bdirection`  =  #{bdirection}
+            </if>
+            <if test=" bdirection!=null and bdirection.trim().length>0">
+                AND `bdirection`  =  #{bdirection}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insIcs" parameterType="com.jacksoft.entity.wms.Ics">
+        insert into `icd`(sdate,warehouse,`type`,`area`,gtype,goods,bdirection,amount,product,abstract) values
+        <foreach collection="list" item="l" separator=",">
+            (#{l.sdate},#{l.warehouse},#{l.type},#{l.area},#{l.gtype},#{l.goods},#{l.bdirection},#{l.amount},#{l.product},#{l.abstract})
+        </foreach>
+    </insert>
+
+    <delete id="delIcs" parameterType="com.jacksoft.entity.wms.Ics">
+        delete from `icd`
+        <where>
+            <if test=" sdate!=null and sdate.trim().length>0">
+                AND `sdate`  =  #{sdate}
+            </if>
+            <if test=" warehouse!=null and warehouse.trim().length>0">
+                AND `warehouse`  =  #{warehouse}
+            </if>
+            <if test=" type!=null and type.trim().length>0">
+                AND `type`  =  #{type}
+            </if>
+            <if test=" area!=null and area.trim().length>0">
+                AND `area`  =  #{area}
+            </if>
+            <if test=" gtype!=null and gtype.trim().length>0">
+                AND `gtype`  =  #{gtype}
+            </if>
+            <if test=" goods!=null and goods.trim().length>0">
+                AND `goods`  =  #{goods}
+            </if>
+            <if test=" bdirection!=null and bdirection.trim().length>0">
+                AND `bdirection`  =  #{bdirection}
+            </if>
+            <if test=" bdirection!=null and bdirection.trim().length>0">
+                AND `bdirection`  =  #{bdirection}
+            </if>
+        </where>
+    </delete>
+
+    <update id="updIcs" parameterType="com.jacksoft.entity.wms.Ics">
+        update `Icd`
+        <set>
+            <if test="replacement.sdate!=null and ''!=replacement.sdate">
+                `sdate` = #{replacement.sdate},
+            </if>
+            <if test="replacement.warehouse!=null and ''!=replacement.warehouse">
+                `warehouse` = #{replacement.warehouse},
+            </if>
+            <if test="replacement.type!=null and ''!=replacement.type">
+                `type` = #{replacement.type},
+            </if>
+            <if test="replacement.area!=null and ''!=replacement.area">
+                `area` = #{replacement.area},
+            </if>
+            <if test="replacement.gtype!=null and ''!=replacement.gtype">
+                `gtype` = #{replacement.gtype},
+            </if>
+            <if test="replacement.goods!=null and ''!=replacement.goods">
+                `goods` = #{replacement.goods},
+            </if>
+            <if test="replacement.bdirection!=null and ''!=replacement.bdirection">
+                `bdirection` = #{replacement.bdirection},
+            </if>
+            <if test="replacement.amount!=null and ''!=replacement.amount">
+                `amount` = #{replacement.amount},
+            </if>
+            <if test="replacement.product!=null and ''!=replacement.product">
+                `product` = #{replacement.product},
+            </if>
+            <if test="replacement.abstract!=null and ''!=replacement.abstract">
+                `abstract` = #{replacement.abstract},
+            </if>
+        </set>
+        <where>
+            <if test=" sdate!=null and sdate.trim().length>0">
+                AND `sdate`  =  #{sdate}
+            </if>
+            <if test=" warehouse!=null and warehouse.trim().length>0">
+                AND `warehouse`  =  #{warehouse}
+            </if>
+            <if test=" type!=null and type.trim().length>0">
+                AND `type`  =  #{type}
+            </if>
+            <if test=" area!=null and area.trim().length>0">
+                AND `area`  =  #{area}
+            </if>
+            <if test=" gtype!=null and gtype.trim().length>0">
+                AND `gtype`  =  #{gtype}
+            </if>
+            <if test=" goods!=null and goods.trim().length>0">
+                AND `goods`  =  #{goods}
+            </if>
+            <if test=" bdirection!=null and bdirection.trim().length>0">
+                AND `bdirection`  =  #{bdirection}
+            </if>
+            <if test=" bdirection!=null and bdirection.trim().length>0">
+                AND `bdirection`  =  #{bdirection}
+            </if>
+        </where>
+    </update>
+
+</mapper>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jacksoft.dao.QualityDao">
+
+    <sql id="field_select">
+        serial,product,department,barcode,sdate,tester,parameters,result,stime,handle,reviewer,batch
+    </sql>
+
+    <resultMap id="QualityMap" type="com.jacksoft.entity.ds.Quality">
+        <result property="serial" column="serial"></result>
+        <result property="product" column="product"></result>
+        <result property="batch" column="batch"></result>
+        <result property="department" column="department"></result>
+        <result property="barcode" column="barcode"></result>
+        <result property="sdate" column="sdate"></result>
+        <result property="tester" column="tester"></result>
+        <result property="parametes" column="parametes"></result>
+        <result property="result" column="result"></result>
+        <result property="stime" column="stime"></result>
+        <result property="handle" column="handle"></result>
+        <result property="reviewer" column="reviewer"></result>
+    </resultMap>
+
+    <select id="queryQualityByPage" parameterType="java.lang.String" resultMap="QualityMap" flushCache="true">
+        <bind name="start" value="(page-1)*row" />
+        <bind name="end"   value="row" />
+        SELECT <include refid="field_select"></include>
+        FROM `quality`
+        <where>
+            <if test=" product!=null and product.trim().length>0">
+                AND `product`  =  #{product}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+            <if test=" sdate!=null and sdate.trim().length>0">
+                AND `sdate`  =  #{sdate}
+            </if>
+            <if test=" stime!=null and stime.trim().length>0">
+                AND `stime`  =  #{stime}
+            </if>
+            <if test=" batch!=null and batch.trim().length>0">
+                AND `batch`  =  #{batch}
+            </if>
+        </where>
+        ORDER BY department,product,serial ASC
+        LIMIT #{start},#{end}
+    </select>
+
+    <select id="countQuality" parameterType="java.lang.String" resultType="int" flushCache="true">
+        SELECT count(1) AS res
+        FROM `quality`
+        <where>
+            <if test=" product!=null and product.trim().length>0">
+                AND `product`  =  #{product}
+            </if>
+            <if test=" department!=null and department.trim().length>0">
+                AND `department`  =  #{department}
+            </if>
+            <if test=" sdate!=null and sdate.trim().length>0">
+                AND `sdate`  =  #{sdate}
+            </if>
+            <if test=" stime!=null and stime.trim().length>0">
+                AND `stime`  =  #{stime}
+            </if>
+            <if test=" batch!=null and batch.trim().length>0">
+                AND `batch`  =  #{batch}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insQuality" parameterType="com.jacksoft.entity.Quality">
+        insert into `quality`(product,department,barcode,sdate,tester,parametes,result,stime,handle,reviewer,batch) values
+        <foreach collection="list" item="l" separator=",">
+            (#{l.product},#{l.department},#{l.barcode},#{l.sdate},#{l.tester},#{l.parametes},#{l.result},#{l.stime},#{l.handle},#{l.reviewer},#{l.batch})
+        </foreach>
+    </insert>
+
+    <delete id="delQuality" parameterType="com.jacksoft.entity.Quality">
+        delete from `quality`
+        <where>
+            <if test="list.size()>0">
+                and `product` in
+                <foreach collection="list" separator="," item="l" open="(" close=")">
+                    #{l.product}
+                </foreach>
+            </if>
+            <if test="list.size()>0">
+                and `batch` in
+                <foreach collection="list" separator="," item="l" open="(" close=")">
+                    #{l.batch}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+
+    <update id="updQuality" parameterType="com.jacksoft.entity.Quality">
+        update `quality`
+        <set>
+            <if test="replacement.product!=null and ''!=replacement.product">
+                `product` = #{replacement.product},
+            </if>
+            <if test="replacement.barcode!=null and ''!=replacement.barcode">
+                `barcode` = #{replacement.barcode},
+            </if>
+            <if test="replacement.sdate!=null and ''!=replacement.sdate">
+                `sdate` = #{replacement.sdate},
+            </if>
+            <if test="replacement.department!=null and ''!=replacement.department">
+                `department` = #{replacement.department},
+            </if>
+            <if test="replacement.tester!=null and ''!=replacement.tester">
+                `tester` = #{replacement.tester},
+            </if>
+            <if test="replacement.parametes!=null and ''!=replacement.parametes">
+                `parametes` = #{replacement.parametes},
+            </if>
+            <if test="replacement.result!=null and ''!=replacement.result">
+                `result` = #{replacement.result},
+            </if>
+            <if test="replacement.stime!=null and ''!=replacement.stime">
+                `stime` = #{replacement.stime},
+            </if>
+            <if test="replacement.handle!=null and ''!=replacement.handle">
+                `handle` = #{replacement.handle},
+            </if>
+            <if test="replacement.reviewer!=null and ''!=replacement.reviewer">
+                `reviewer` = #{replacement.reviewer},
+            </if>
+            <if test="replacement.batch!=null and ''!=replacement.batch">
+                `batch` = #{replacement.batch},
+            </if>
+        </set>
+        <where>
+            <if test="filter.serial!=null and ''!=filter.serial">
+                AND `serial` =  #{filter.serial}
+            </if>
+        </where>
+    </update>
+
+</mapper>
